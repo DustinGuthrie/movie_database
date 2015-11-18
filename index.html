@@ -13,13 +13,13 @@
       <div class="col-md-2 swap"></div>
       <div class="col-md-8">
           <div class="thumbnail">
-            <img src="<% photo %>" id="photo" alt="...">
+            <img src="<%= photo %>" id="photo" alt="...">
           </div>
               <div class="col-md-2 rating">
                 <!-- <span class="glyphicon glyphicon-star-empty" style="color: gold;" aria-hidden="true"></span>
                 <span class="glyphicon glyphicon-star-empty" style="color: gold;" aria-hidden="true"></span>
                 <span class="glyphicon glyphicon-star-empty" style="color: gold;" aria-hidden="true"></span> -->
-                <span class="glyphicon glyphicon-star-empty" style="color: gold;" aria-hidden="true"><% rating %></span>
+                <span class="glyphicon glyphicon-star-empty" style="color: gold;" aria-hidden="true"><%= rating %></span>
               </div>
               <div class="col-md-8 title">
                 <h3 id="title"><%= title %></h3>
@@ -28,7 +28,7 @@
                 <h3 id="release"><%= release %></h3>
               </div>
           <div class="col-md-12 review">
-              <p id="plot"><% plot %></p>
+              <p id="plot"><%= plot %></p>
           </div>
           <div class="col-md-12 buttons">
               <p>
