@@ -1,0 +1,36 @@
+.navbar-fixed-top {
+  background-color: #e6e6e6; }
+
+.row {
+  background-color: #63a0d4;
+  margin-top: 100px; }
+
+.form-group {
+  margin-top: 5px; }
+
+.post {
+  margin-top: 5px;
+  margin-left: 10px; }
+
+h1 {
+  text-align: center; }
+
+.form-inline {
+  margin-top: 20px;
+  text-align: center; }
+
+.row h3 {
+  text-align: center; }
+
+.row p {
+  text-align: center; }
+
+.row img {
+  text-align: center;
+  width: 100%; }
+
+.release h3 {
+  font-size: .9em; }
+
+span.glyphicon-star-empty {
+  font-size: 2em; }
