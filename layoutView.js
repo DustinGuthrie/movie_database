@@ -19,7 +19,7 @@ module.exports = Backbone.View.extend({
     movieCollection.fetch().then(function () {
       self.$el.find('header').html(headerHTML.render().el);
       self.$el.find('footer').html(footerHTML.render().el);
-      // self.$el.find('swap').html(formHTML.render().el);
+      self.$el.find('section').html(formHTML.render().el);
     });
   }
 

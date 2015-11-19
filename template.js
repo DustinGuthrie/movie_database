@@ -27,10 +27,11 @@ module.exports = {
         "</div>",
         "<div class='col-md-2'></div>",
       "</div>"
-
   ].join(""),
   form: [
-    "<form>",
+    // "<form>",
+    "<div class='row'>",
+      "<div class='col-md-12'>",
       "<form class='form-inline'>",
         "<div class='form-group'>",
           "<input type='text' class='form-control' id='title' name='title' placeholder='Title'>",
@@ -48,7 +49,9 @@ module.exports = {
           "<input type='text' class='form-control' id='plot' name='plot' placeholder='This is a fictional ...'>",
         "</div>",
           "<button type='submit' id='postButton' class='btn btn-primary post'>Post</button>",
-    "</form>"
+        "</div>",
+      "</div>"
+    // "</form>"
   ].join(""),
   header: [
     "<nav class='navbar navbar-default navbar-fixed-top header'>",
