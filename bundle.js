@@ -4,12 +4,11 @@ var MovieCollection = require('./movieCollection');
 var MovieCollectionView = require('./movieCollectionView');
 
 $(function () {
-  var movies = new MovieCollection();
-
-  movies.fetch().then(function (data) {
-    console.log("these are the movies: ", movies);
-    new MovieCollectionView({collection: movies});
-
+  var movieCollection = new MovieCollection();
+  // console.log("the hell");
+  movieCollection.fetch().then(function (data) {
+    // console.log("these are the movies: ", movies);
+    new MovieCollectionView({collection: movieCollection});
   });
 });
 
@@ -19,11 +18,9 @@ var _ = require('underscore');
 var MovieModel = require('./movieModel');
 
 module.exports = Backbone.Collection.extend({
-  url: function() {
-    return 'http://tiy-fee-rest.herokuapp.com/collections/Dustin_movieList';
-  },
+  url: 'http://tiny-tiny.herokuapp.com/collections/Dustin_movieList',
   initialize: function () {
-    console.log(this.url());
+    // console.log(this.url());
   },
   model: MovieModel
 });
@@ -34,6 +31,7 @@ var _ = require('underscore');
 var $ = require('jquery');
 Backbone.$ = $;
 var MovieView = require('./movieModelView');
+var MovieModel = require('./movieModel');
 
 
 //initial load here
@@ -44,40 +42,40 @@ module.exports = Backbone.View.extend({
     // 'click .post': 'createOne',
     'submit form': 'submitForm',
   },
-
-  submitForm: function () {
-    var newMovie = {
-      title: this.$el.find('input[type="title"]').val(),
-      photo: this.$el.find('input[type="photo"]').val(),
-      rating: this.$el.find('input[type="rating"]').val(),
-      release: this.$el.find('input[type="release"]').val(),
-      plot: this.$el.find('input[type="plot"]').val(),
-    };
-    var newModel = new MovieModel(newMovie);
-    newModel.save();
-    this.collection.add(newModel);
-    this.createOne(newModel);
-  },
-
   initialize: function () {
-
+    // console.log("HELLO PLEASE");
     this.addAll();
   },
+
   createOne: function (movieModel) {
     var movieView = new MovieView({model: movieModel});
     this.$el.append(movieView.render().el);
   },
   addAll: function () {
     _.each(this.collection.models, this.createOne, this);
-
+  },
+  submitForm: function (event) {
+    console.log("HELLO");
+    event.preventDefault();
+    var newMovie = {
+      title: this.$el.find('input[name="title"]').val(),
+      photo: this.$el.find('input[name="photo"]').val(),
+      rating: this.$el.find('input[name="rating"]').val(),
+      release: this.$el.find('input[name="release"]').val(),
+      plot: this.$el.find('input[name="plot"]').val(),
+    };
+    var newModel = new MovieModel(newMovie);
+    newModel.save();
+    this.collection.add(newModel);
+    this.createOne(newModel);
   }
 });
 
-},{"./movieModelView":5,"backbone":6,"jquery":7,"underscore":8}],4:[function(require,module,exports){
+},{"./movieModel":4,"./movieModelView":5,"backbone":6,"jquery":7,"underscore":8}],4:[function(require,module,exports){
 var Backbone = require('backbone');
 
 module.exports = Backbone.Model.extend({
-  urlRoot: 'http://tiy-fee-rest.herokuapp.com/collections/Dustin_movieList',
+  urlRoot: 'http://tiny-tiny.herokuapp.com/collections/Dustin_movieList',
   idAttribute: '_id',
   defaults: {
     photo: 'http://static.rogerebert.com/uploads/review/primary_image/reviews/spotlight-2015/hero_Spotlight-2015-3.jpg',
@@ -85,13 +83,10 @@ module.exports = Backbone.Model.extend({
     rating: "3.5",
     release: "November 5, 2015",
     plot: "On January 6, 2002, Boston Globe subscribers picked up their local paper and saw the front page headline: Church Allowed Abuse by Priest for Years.  The story, written by Michael Rezendes, a reporter on the investigative Spotlight team, was massive, in word-count and impact, but it was just the beginning. Two more Spotlight stories on the same topic ran that day, with more to follow. The uproar from the Spotlight stories (The Boston Phoenix, an alternative weekly, had covered church sexual abuse but it didn't have the circulation of the Globe) was so sustained that by December 2002, Cardinal Bernard Law, the Archbishop of Boston, stepped down in disgrace, saying in a statement, To all those who have suffered from my shortcomings and mistakes I both apologize and from them beg forgiveness. Pope John Paul II gave him a position in Rome, where Law remains to this day.) The Spotlight team won a Pulitzer Prize in 2003 for their reporting. These events are familiar to everyone by now, but those first Spotlight stories are painfully familiar to Boston Catholics (my family is Boston Irish-Catholic), and it was the first news story to dominate everyones conversations since September 11th only a few months prior."
-},
-
-initialize: function () {
-
-
-
-}
+  },
+  initialize: function () {
+    console.log("FROM MODEL");
+  }
 });
 
 },{"backbone":6}],5:[function(require,module,exports){
@@ -100,29 +95,36 @@ var _ = require('underscore');
 var $ = require('jquery');
 Backbone.$ = $;
 
+
 //post single movie here
 //upvoting here
 //edit here
 //delete here
 
 module.exports = Backbone.View.extend({
-  el: '.swap',
-  // tagName: 'article',
-  // className: 'photo',
+  // el: '.row',
+  // tagName: 'movieArticle',
+  className: 'movieReview',
   template: _.template($('#movieTmpl').html()),
   events: {
     // 'click .post': 'onArticleClick',
-    'click .post': 'onPostClick',
+    // 'click .post': 'onPostClick',
+    'click .remove':  'onDeleteClick',
 
   },
   onPostClick: function () {
     alert('you clicked Post!');
   },
+  onDeleteClick: function (){
+    event.preventDefault();
+    this.model.destroy();
+    this.$el.remove();
+  },
 
   render: function () {
     var markup = this.template(this.model.toJSON());
     this.$el.html(markup);
-    console.log(markup);
+    // console.log(markup);
     return this;
   },
   initialize: function () {}
