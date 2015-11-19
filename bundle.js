@@ -1,60 +1,52 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var $ = require('jquery');
-var MovieCollection = require('./movieCollection');
-var MovieCollectionView = require('./movieCollectionView');
-
-$(function () {
-  var movieCollection = new MovieCollection();
-  // console.log("the hell");
-  movieCollection.fetch().then(function (data) {
-    // console.log("these are the movies: ", movies);
-    new MovieCollectionView({collection: movieCollection});
-  });
-});
-
-},{"./movieCollection":2,"./movieCollectionView":3,"jquery":7}],2:[function(require,module,exports){
 var Backbone = require('backbone');
-var _ = require('underscore');
+// var _ = require('underscore');
 var MovieModel = require('./movieModel');
 
 module.exports = Backbone.Collection.extend({
   url: 'http://tiny-tiny.herokuapp.com/collections/Dustin_movieList',
+  model: MovieModel,
   initialize: function () {
     // console.log(this.url());
   },
-  model: MovieModel
+  // model: MovieModel
 });
 
-},{"./movieModel":4,"backbone":6,"underscore":8}],3:[function(require,module,exports){
+},{"./movieModel":8,"backbone":10}],2:[function(require,module,exports){
 var Backbone = require('backbone');
-var _ = require('underscore');
 var $ = require('jquery');
 Backbone.$ = $;
-var MovieView = require('./movieModelView');
-var MovieModel = require('./movieModel');
+var _ = require('underscore');
+var tmpl = require('./template');
 
-
-//initial load here
 
 module.exports = Backbone.View.extend({
-  el: '.swap',
-  events: {
-    // 'click .post': 'createOne',
-    'submit form': 'submitForm',
-  },
-  initialize: function () {
-    // console.log("HELLO PLEASE");
-    this.addAll();
-  },
+  initialize: function() {},
+  template: _.template(tmpl.footer),
+  render: function() {
+    var markup = this.template({});
+    this.$el.html(markup);
+    return this;
+  }
 
-  createOne: function (movieModel) {
-    var movieView = new MovieView({model: movieModel});
-    this.$el.append(movieView.render().el);
+});
+
+},{"./template":13,"backbone":10,"jquery":11,"underscore":12}],3:[function(require,module,exports){
+var Backbone = require('backbone');
+var $ = require('jquery');
+Backbone.$ = $;
+var _ = require('underscore');
+var tmpl = require('./template');
+var MovieModel = require('./movieModel');
+
+module.exports = Backbone.View.extend({
+  className: 'addMovie',
+  model: null,
+  events: {
+    'submit form': 'addMovie',
+    'click .remove':  'onDeleteClick',
   },
-  addAll: function () {
-    _.each(this.collection.models, this.createOne, this);
-  },
-  submitForm: function (event) {
+  addMovie: function (event) {
     console.log("HELLO");
     event.preventDefault();
     var newMovie = {
@@ -64,36 +56,162 @@ module.exports = Backbone.View.extend({
       release: this.$el.find('input[name="release"]').val(),
       plot: this.$el.find('input[name="plot"]').val(),
     };
-    var newModel = new MovieModel(newMovie);
+    // var newModel = new MovieModel(newMovie);
+    this.model.set(newMovie);
     newModel.save();
-    this.collection.add(newModel);
-    this.createOne(newModel);
-  }
+    // this.collection.add(newModel);
+    // this.createOne(newModel);
+    this.$el.find('input').val('');
+  },
+  onDeleteClick: function (){
+    event.preventDefault();
+    this.model.destroy();
+    this.$el.remove();
+  },
+  template: _.template(tmpl.form),
+  render: function () {
+    var markup = this.template(this.model.toJSON());
+    this.$el.html(markup);
+    // console.log(markup);
+    return this;
+  },
 });
 
-},{"./movieModel":4,"./movieModelView":5,"backbone":6,"jquery":7,"underscore":8}],4:[function(require,module,exports){
+},{"./movieModel":8,"./template":13,"backbone":10,"jquery":11,"underscore":12}],4:[function(require,module,exports){
+var Backbone = require('backbone');
+var $ = require('jquery');
+Backbone.$ = $;
+var _ = require('underscore');
+var tmpl = require('./template');
+
+module.exports = Backbone.View.extend({
+  initialize: function() {},
+  template: _.template(tmpl.header),
+  render: function() {
+    var markup = this.template({});
+    this.$el.html(markup);
+    return this;
+  }
+
+});
+
+},{"./template":13,"backbone":10,"jquery":11,"underscore":12}],5:[function(require,module,exports){
+var Backbone = require('backbone');
+var $ = require('jquery');
+Backbone.$ = $;
+var _ = require('underscore');
+var HeaderView = require('./headerView');
+var FooterView = require('./footerView');
+var FormView = require('./formView');
+var MovieView = require('./movieCollectionView');
+var MovieCollection = require('./MovieCollection');
+
+module.exports = Backbone.View.extend({
+  el: '#layoutView',
+  initialize: function () {
+    var self = this;
+    var headerHTML = new HeaderView();
+    var footerHTML = new FooterView();
+    var formHTML = new FormView();
+    var movieCollection = new MovieCollection();
+    movieCollection.fetch().then(function () {
+      self.$el.find('header').html(headerHTML.render().el);
+      self.$el.find('footer').html(footerHTML.render().el);
+      // self.$el.find('swap').html(formHTML.render().el);
+    });
+  }
+
+});
+
+},{"./MovieCollection":1,"./footerView":2,"./formView":3,"./headerView":4,"./movieCollectionView":7,"backbone":10,"jquery":11,"underscore":12}],6:[function(require,module,exports){
+var $ = require('jquery');
+// var MovieCollection = require('./movieCollection');
+// var MovieCollectionView = require('./movieCollectionView');
+var layoutView = require('./layoutView');
+
+$(function () {
+  new layoutView();
+});
+
+//******OLD WAY**********
+// $(function () {
+//   var movieCollection = new MovieCollection();
+//   // console.log("the hell");
+//   movieCollection.fetch().then(function (data) {
+//     // console.log("these are the movies: ", movies);
+//     new MovieCollectionView({collection: movieCollection});
+//   });
+// });
+
+},{"./layoutView":5,"jquery":11}],7:[function(require,module,exports){
+var Backbone = require('backbone');
+var _ = require('underscore');
+var $ = require('jquery');
+Backbone.$ = $;
+var MovieView = require('./movieModelView');
+// var MovieModel = require('./movieModel');
+
+module.exports = Backbone.View.extend({
+  el: '.swap',
+  collection: null,
+  // events: {
+  //   'submit form': 'submitForm',
+  // },
+  initialize: function () {
+    // console.log("HELLO PLEASE");
+    this.addAll();
+  },
+  createOne: function (movieModel) {
+    console.log("movie model", movieModel);
+    var movieView = new MovieView({model: movieModel});
+    this.$el.append(movieView.render().el);
+  },
+  addAll: function () {
+    _.each(this.collection.models, this.createOne, this);
+  },
+  // submitForm: function (event) {
+  //   console.log("HELLO");
+  //   event.preventDefault();
+  //   var newMovie = {
+  //     title: this.$el.find('input[name="title"]').val(),
+  //     photo: this.$el.find('input[name="photo"]').val(),
+  //     rating: this.$el.find('input[name="rating"]').val(),
+  //     release: this.$el.find('input[name="release"]').val(),
+  //     plot: this.$el.find('input[name="plot"]').val(),
+  //   };
+  //   var newModel = new MovieModel(newMovie);
+  //   newModel.save();
+  //   this.collection.add(newModel);
+  //   this.createOne(newModel);
+  // }
+});
+
+},{"./movieModelView":9,"backbone":10,"jquery":11,"underscore":12}],8:[function(require,module,exports){
 var Backbone = require('backbone');
 
 module.exports = Backbone.Model.extend({
   urlRoot: 'http://tiny-tiny.herokuapp.com/collections/Dustin_movieList',
   idAttribute: '_id',
-  defaults: {
+  defaults: function () {
+    return {
     photo: 'http://static.rogerebert.com/uploads/review/primary_image/reviews/spotlight-2015/hero_Spotlight-2015-3.jpg',
     title: "Spotlight",
     rating: "3.5",
     release: "November 5, 2015",
     plot: "On January 6, 2002, Boston Globe subscribers picked up their local paper and saw the front page headline: Church Allowed Abuse by Priest for Years.  The story, written by Michael Rezendes, a reporter on the investigative Spotlight team, was massive, in word-count and impact, but it was just the beginning. Two more Spotlight stories on the same topic ran that day, with more to follow. The uproar from the Spotlight stories (The Boston Phoenix, an alternative weekly, had covered church sexual abuse but it didn't have the circulation of the Globe) was so sustained that by December 2002, Cardinal Bernard Law, the Archbishop of Boston, stepped down in disgrace, saying in a statement, To all those who have suffered from my shortcomings and mistakes I both apologize and from them beg forgiveness. Pope John Paul II gave him a position in Rome, where Law remains to this day.) The Spotlight team won a Pulitzer Prize in 2003 for their reporting. These events are familiar to everyone by now, but those first Spotlight stories are painfully familiar to Boston Catholics (my family is Boston Irish-Catholic), and it was the first news story to dominate everyones conversations since September 11th only a few months prior."
+    };
   },
   initialize: function () {
-    console.log("FROM MODEL");
+    // console.log("FROM MODEL");
   }
 });
 
-},{"backbone":6}],5:[function(require,module,exports){
+},{"backbone":10}],9:[function(require,module,exports){
 var Backbone = require('backbone');
 var _ = require('underscore');
 var $ = require('jquery');
 Backbone.$ = $;
+var tmpl = require('./template');
 
 
 //post single movie here
@@ -105,33 +223,42 @@ module.exports = Backbone.View.extend({
   // el: '.row',
   // tagName: 'movieArticle',
   className: 'movieReview',
-  template: _.template($('#movieTmpl').html()),
-  events: {
-    // 'click .post': 'onArticleClick',
-    // 'click .post': 'onPostClick',
-    'click .remove':  'onDeleteClick',
-
-  },
-  onPostClick: function () {
-    alert('you clicked Post!');
-  },
-  onDeleteClick: function (){
-    event.preventDefault();
-    this.model.destroy();
-    this.$el.remove();
-  },
-
+  model: null,
+  initialize: function () {},
+  template: _.template(tmpl.movie),
   render: function () {
     var markup = this.template(this.model.toJSON());
     this.$el.html(markup);
     // console.log(markup);
     return this;
-  },
-  initialize: function () {}
+  }
+  // template: _.template($('#movieTmpl').html()),
+  // events: {
+    // 'click .post': 'onArticleClick',
+    // 'click .post': 'onPostClick',
+    // 'click .remove':  'onDeleteClick',
+
+  // },
+  // onPostClick: function () {
+  //   alert('you clicked Post!');
+  // },
+  // onDeleteClick: function (){
+  //   event.preventDefault();
+  //   this.model.destroy();
+  //   this.$el.remove();
+  // },
+
+  // render: function () {
+  //   var markup = this.template(this.model.toJSON());
+  //   this.$el.html(markup);
+    // console.log(markup);
+    // return this;
+  // },
+  // initialize: function () {}
 
 });
 
-},{"backbone":6,"jquery":7,"underscore":8}],6:[function(require,module,exports){
+},{"./template":13,"backbone":10,"jquery":11,"underscore":12}],10:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -2029,7 +2156,7 @@ module.exports = Backbone.View.extend({
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":7,"underscore":8}],7:[function(require,module,exports){
+},{"jquery":11,"underscore":12}],11:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -11241,7 +11368,7 @@ return jQuery;
 
 }));
 
-},{}],8:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -12791,4 +12918,83 @@ return jQuery;
   }
 }.call(this));
 
-},{}]},{},[1]);
+},{}],13:[function(require,module,exports){
+module.exports = {
+  movie: [
+    "<div class='row'>",
+      "<div class='col-md-2'></div>",
+      "<div class='col-md-8'>",
+          "<div class='thumbnail'>",
+            "<img src='<%=photo %>'>",
+          "</div>",
+              "<div class='col-md-2 rating'>",
+                "<span class='glyphicon glyphicon-star-empty' style='color: gold;' aria-hidden='true'><%=rating %></span>",
+                "<span class='glyphicon glyphicon-star-empty' style='color: gold;' aria-hidden='true'></span>",
+              "</div>",
+              "<div class='col-md-8 title'>",
+                "<h3><%=title %></h3>",
+              "</div>",
+              "<div class='col-md-2 release'>",
+                "<h3><%=release %></h3>",
+              "</div>",
+          "<div class='col-md-12 review'>",
+              "<p><%=plot %></p>",
+          "</div>",
+          "<div class='col-md-12 buttons'>",
+              "<p>",
+                "<a href='#'' class='btn btn-primary remove' role='button'>Remove From List</a>",
+              "</p>",
+          "</div>",
+        "</div>",
+        "<div class='col-md-2'></div>",
+      "</div>"
+
+  ].join(""),
+  form: [
+    "<form>",
+      "<form class='form-inline'>",
+        "<div class='form-group'>",
+          "<input type='text' class='form-control' id='title' name='title' placeholder='Title'>",
+        "</div>",
+        "<div class='form-group'>",
+          "<input type='text' class='form-control' id='photo' name='photo' placeholder='http://something.com'>",
+        "</div>",
+        "<div class='form-group'>",
+          "<input type='text' class='form-control' id='rating' name='rating' placeholder='3 Stars'>",
+        "</div>",
+        "<div class='form-group'>",
+          "<input type='text' class='form-control' id='release' name='release' placeholder='May 20, 2015'>",
+        "</div>",
+        "<div class='form-group'>",
+          "<input type='text' class='form-control' id='plot' name='plot' placeholder='This is a fictional ...'>",
+        "</div>",
+          "<button type='submit' id='postButton' class='btn btn-primary post'>Post</button>",
+    "</form>"
+  ].join(""),
+  header: [
+    "<nav class='navbar navbar-default navbar-fixed-top header'>",
+      "<div class='container'>",
+        "<h1>MooVee Mayhem</h1>",
+        "<h4>[Read movie reviews or post your own]</h4>",
+      "</div>",
+    "</nav>"
+  ].join(""),
+  footer: [
+    "<nav class='navbar navbar-inverse navbar-fixed-bottom footer'>",
+      "<div class='container-fluid'>",
+        "<div class='navbar-footer'>",
+          "<a class='navbar-brand' href='#''>&copy 2015 MooVee Mahem</a>",
+        "</div>",
+        "<div>",
+          "<ul class='nav navbar-nav' style='float: right'>",
+            "<li class='active'><a href='#''>Home</a></li>",
+            "<li><a href='#'>Contact</a></li>",
+            "<li><a href='#'>About</a></li>",
+          "</ul>",
+        "</div>",
+      "</div>",
+    "</nav>"
+    ].join(""),
+};
+
+},{}]},{},[6]);
